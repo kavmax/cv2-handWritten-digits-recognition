@@ -7,7 +7,6 @@ from keras.models import load_model
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
-HEIGHT, WEIGHT = 28, 28
 capture = cv2.VideoCapture("assets/digits-video.mp4")
 recognizer = load_model("assets/cnn-digits-recognition.sav")
 
@@ -21,10 +20,8 @@ while True:
     letter_frames = prepare_data(letter_frames)
 
     predicted = recognizer.predict(letter_frames)
-    print(predicted, len(predicted))
 
     predicted = predicted_to_numbers(predicted)
-    print(predicted, len(predicted))
 
     append_results(frame, letter_positions, predicted)
 
