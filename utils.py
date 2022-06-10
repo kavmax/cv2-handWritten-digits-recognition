@@ -4,7 +4,7 @@ import numpy as np
 
 def find_letters_on_frame(frame):
     frame = frame.copy()
-    ks, sigma = 1, 1
+    ks, sigma = 1, 3
     frame = cv2.GaussianBlur(frame, (ks, ks), sigma)
     blue_mask = cv2.inRange(frame, np.array([0, 0, 0]), np.array([255, 135, 82]))
     frame = cv2.bitwise_and(frame, frame, mask=blue_mask)
@@ -32,16 +32,34 @@ def find_letters_on_frame(frame):
 
 
 def prepare_data(letters):
+    letters = letters.copy()
+
     for i, letter in enumerate(letters):
         letters[i] = cv2.resize(letter, (28, 28))
 
     letters = np.array(letters)
-    # letters[letters > 120] = 255
+    letters[letters > 10] = 255
     letters = letters / 255.0
 
     letters = letters.reshape(-1, 28, 28, 1)
 
     return letters
+
+
+def create_letters_frame(frame, letter_frames, letter_positions):
+    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+    for idx, letter_frame in enumerate(letter_frames):
+        x, y, w, h = letter_positions[idx][0], letter_positions[idx][1], \
+                     letter_positions[idx][2], letter_positions[idx][3]
+
+        letter_frame = np.reshape(letter_frame, (28, 28))
+        letter_frame = letter_frame * 255
+        frame_shape = frame[y:y+28, x:x+28].shape
+
+        if frame_shape[0] == 28 and frame_shape[1] == 28:
+            frame[y:y+28, x:x+28] = letter_frame
+
+    return frame
 
 
 def predicted_to_numbers(predicted):
